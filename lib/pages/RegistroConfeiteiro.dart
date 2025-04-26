@@ -1,240 +1,220 @@
-import 'dart:convert';
+import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class TelaRegistroConfeiteiro extends StatefulWidget {
-  const TelaRegistroConfeiteiro({super.key});
-
+class CadastroConfeitariaPage extends StatefulWidget {
   @override
-  State<TelaRegistroConfeiteiro> createState() => _TelaRegistroConfeiteiroState();
+  _CadastroConfeitariaPageState createState() => _CadastroConfeitariaPageState();
 }
 
-class _TelaRegistroConfeiteiroState extends State<TelaRegistroConfeiteiro> {
+class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nomeController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  final _cepController = TextEditingController();
-  final _ruaController = TextEditingController();
-  final _numeroController = TextEditingController();
-  final _bairroController = TextEditingController();
-  final _estadoController = TextEditingController();
-  final _cidadeController = TextEditingController();
 
-  // Função para consultar o endereço pelo CEP
-  Future<void> _consultarCep() async {
-    final cep = _cepController.text.replaceAll('-', ''); // Remove hífens
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _avaliacaoController = TextEditingController();
+  final TextEditingController _imagemController = TextEditingController();
+  final TextEditingController _enderecoController = TextEditingController();
+  final TextEditingController _cepController = TextEditingController();
+  final TextEditingController _ruaController = TextEditingController();
+  final TextEditingController _numeroController = TextEditingController();
+  final TextEditingController _bairroController = TextEditingController();
+  final TextEditingController _estadoController = TextEditingController();
+  final TextEditingController _cidadeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(); // Novo controlador
 
-    if (cep.length == 8) { // Verifica se o CEP tem o formato correto (8 dígitos)
-      final url = Uri.parse('https://viacep.com.br/ws/$cep/json/');
+  // Função para buscar o endereço pelo CEP
+  Future<void> _buscarEnderecoPorCEP(String cep) async {
+    if (cep.isEmpty || cep.length != 8) return; // Verifica se o CEP tem 8 dígitos
+    final url = Uri.parse('https://viacep.com.br/ws/$cep/json/');
+    final response = await http.get(url);
 
-      try {
-        final response = await http.get(url);
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          if (data['erro'] == null) {
-            setState(() {
-              _ruaController.text = data['logradouro'] ?? '';
-              _bairroController.text = data['bairro'] ?? '';
-              _cidadeController.text = data['localidade'] ?? '';
-              _estadoController.text = data['uf'] ?? '';
-            });
-          } else {
-            _showSnackBar('CEP não encontrado.');
-          }
-        } else {
-          _showSnackBar('Erro ao buscar o endereço.');
-        }
-      } catch (e) {
-        _showSnackBar('Erro ao conectar com o servidor.');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['erro'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('CEP não encontrado!')));
+        return;
       }
+      setState(() {
+        _ruaController.text = data['logradouro'] ?? '';
+        _bairroController.text = data['bairro'] ?? '';
+        _cidadeController.text = data['localidade'] ?? '';
+        _estadoController.text = data['uf'] ?? '';
+      });
     } else {
-      _showSnackBar('CEP inválido.');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao buscar endereço!')));
     }
   }
 
-  // Função para exibir mensagens de erro
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  // Função para cadastrar a confeitaria no banco de dados
+  Future<void> _cadastrarConfeitaria() async {
+    if (_formKey.currentState!.validate()) {
+      // Criar o mapa de dados para salvar no banco de dados
+      final newConfeitaria = {
+        'nome': _nomeController.text,
+        'avaliacao': double.parse(_avaliacaoController.text),
+        'imagem': _imagemController.text,  // URL ou caminho da imagem
+        'endereco': _enderecoController.text,
+        'cep': _cepController.text,
+        'rua': _ruaController.text,
+        'numero': _numeroController.text,
+        'bairro': _bairroController.text,
+        'estado': _estadoController.text,
+        'cidade': _cidadeController.text,
+        'email': _emailController.text,  // Adicionando o email ao mapa
+      };
+
+      // Inserir no banco de dados
+      await DatabaseHelper.instance.insertConfeitaria(newConfeitaria);
+
+      // Após cadastrar, você pode voltar para a lista de confeitarias ou mostrar um Snackbar de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Confeitaria cadastrada com sucesso!')));
+      Navigator.pop(context);  // Voltar para a página anterior
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registro Confeiteiro'),
+        title: Text('Cadastrar Confeitaria'),
         backgroundColor: Colors.pink,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
-              const Text(
-                'Crie sua conta de confeiteiro',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 40),
               TextFormField(
                 controller: _nomeController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Nome da Confeitaria'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu nome';
+                    return 'Informe o nome da confeitaria';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
               TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
-                ),
+                controller: _avaliacaoController,
+                decoration: InputDecoration(labelText: 'Avaliação (0 a 5)'),
+                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu e-mail';
+                    return 'Informe a avaliação';
+                  }
+                  if (double.tryParse(value) == null || double.parse(value) < 0 || double.parse(value) > 5) {
+                    return 'Avaliação deve ser entre 0 e 5';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
               TextFormField(
-                controller: _senhaController,
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  border: OutlineInputBorder(),
-                ),
+                controller: _imagemController,
+                decoration: InputDecoration(labelText: 'URL da Imagem'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua senha';
+                    return 'Informe a URL da imagem';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Campo para o CEP
+              TextFormField(
+                controller: _emailController, // Campo de email
+                decoration: InputDecoration(labelText: 'E-mail'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Informe o e-mail da confeitaria';
+                  }
+                  // Validação simples de email
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    return 'Informe um e-mail válido';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _enderecoController,
+                decoration: InputDecoration(labelText: 'Endereço'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Informe o endereço da confeitaria';
+                  }
+                  return null;
+                },
+              ),
               TextFormField(
                 controller: _cepController,
-                decoration: const InputDecoration(
-                  labelText: 'CEP',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  if (value.length == 8) {
-                    _consultarCep(); // Chama a função ao preencher o CEP
+                decoration: InputDecoration(labelText: 'CEP'),
+                keyboardType: TextInputType.number,
+                onChanged: (cep) {
+                  if (cep.length == 8) {
+                    _buscarEnderecoPorCEP(cep);  // Preenche o endereço quando o CEP tiver 8 caracteres
                   }
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu CEP';
+                    return 'Informe o CEP';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Campo para a Rua
               TextFormField(
                 controller: _ruaController,
-                decoration: const InputDecoration(
-                  labelText: 'Rua',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Rua'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o nome da sua rua';
+                    return 'Informe a rua';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Campo para o Número
               TextFormField(
                 controller: _numeroController,
-                decoration: const InputDecoration(
-                  labelText: 'Número',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Número'),
+                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o número da sua residência';
+                    return 'Informe o número';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Campo para o Bairro
               TextFormField(
                 controller: _bairroController,
-                decoration: const InputDecoration(
-                  labelText: 'Bairro',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Bairro'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu bairro';
+                    return 'Informe o bairro';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Campo para o Estado
               TextFormField(
                 controller: _estadoController,
-                decoration: const InputDecoration(
-                  labelText: 'Estado',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Estado'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu estado';
+                    return 'Informe o estado';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-              // Campo para a Cidade
               TextFormField(
                 controller: _cidadeController,
-                decoration: const InputDecoration(
-                  labelText: 'Cidade',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Cidade'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua cidade';
+                    return 'Informe a cidade';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Implementar a lógica para registrar o confeiteiro aqui
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Registrado com sucesso!')),
-                    );
-                    // Redirecionar para login ou outra tela
-                    Navigator.pushNamed(context, '/loginConfeiteiro');
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Registrar',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
+                onPressed: _cadastrarConfeitaria,
+                child: Text('Cadastrar Confeitaria'),
               ),
             ],
           ),

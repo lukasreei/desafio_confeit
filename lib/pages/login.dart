@@ -33,7 +33,7 @@ class TelaLogin extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/confeitarias');
+                    Navigator.pushNamed(context, '/confeitarias'); // <--- Aqui muda a rota
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.pink,

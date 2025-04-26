@@ -1,34 +1,45 @@
+import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-class TelaListaConfeitarias extends StatelessWidget {
-  final List<Map<String, String>> confeitarias = [
-    {
-      'nome': 'Confeitaria Doce Sabor',
-      'avaliacao': '4.8',
-      'imagem': 'https://via.placeholder.com/300x200.png?text=Confeitaria+1',
-    },
-    {
-      'nome': 'Doces da Vovó',
-      'avaliacao': '4.9',
-      'imagem': 'https://via.placeholder.com/300x200.png?text=Confeitaria+2',
-    },
-    {
-      'nome': 'Chocolates & Cia',
-      'avaliacao': '4.7',
-      'imagem': 'https://via.placeholder.com/300x200.png?text=Confeitaria+3',
-    },
-    {
-      'nome': 'Delícias de Maria',
-      'avaliacao': '4.6',
-      'imagem': 'https://via.placeholder.com/300x200.png?text=Confeitaria+4',
-    },
-  ];
+class TelaListarConfeitarias extends StatefulWidget {
+  @override
+  _TelaListarConfeitariasState createState() => _TelaListarConfeitariasState();
+}
+
+class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
+  List<Map<String, dynamic>> confeitarias = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConfeitarias();
+  }
+
+  // Carregar confeitarias do banco de dados
+  Future<void> _loadConfeitarias() async {
+    final data = await DatabaseHelper().getConfeitarias();
+    setState(() {
+      confeitarias = data;
+    });
+  }
+
+  Future<void> _addConfeitaria() async {
+    final newConfeitaria = {
+      'nome': 'Confeitaria Exemplo',
+      'avaliacao': 4.8,
+      'imagem': 'https://via.placeholder.com/300x200.png?text=Confeitaria+Exemplo',
+      'endereco': 'Rua Exemplo, 123, Bairro Exemplo, Cidade Exemplo',
+    };
+
+    await DatabaseHelper.instance.insertConfeitaria(newConfeitaria);
+    _loadConfeitarias(); // Recarregar as confeitarias após adicionar
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    final topConfeitarias = confeitarias.sublist(0, 3);
+    // Confeitarias mais bem avaliadas (top 3)
+    final topConfeitarias = confeitarias.isNotEmpty ? confeitarias.sublist(0, confeitarias.length > 3 ? 3 : confeitarias.length) : [];
 
     return Scaffold(
       appBar: AppBar(
@@ -39,68 +50,89 @@ class TelaListaConfeitarias extends StatelessWidget {
         child: Column(
           children: [
             // Carrossel com as confeitarias mais bem avaliadas
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: CarouselSlider.builder(
-                itemCount: topConfeitarias.length,
-                itemBuilder: (context, index, realIndex) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: NetworkImage(topConfeitarias[index]['imagem']!),
-                        fit: BoxFit.cover,
+            if (topConfeitarias.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: CarouselSlider.builder(
+                  itemCount: topConfeitarias.length,
+                  itemBuilder: (context, index, realIndex) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                          image: NetworkImage(topConfeitarias[index]['imagem']),
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          topConfeitarias[index]['nome']!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            topConfeitarias[index]['nome'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
-                options: CarouselOptions(
-                  autoPlay: true,
-                  enlargeCenterPage: true,
-                  aspectRatio: 2.0,
-                  viewportFraction: 0.8,
+                    );
+                  },
+                  options: CarouselOptions(
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    aspectRatio: 2.0,
+                    viewportFraction: 0.8,
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 20),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: confeitarias.map((confeitaria) {
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16.0),
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(confeitaria['imagem']!),
+            // Lista com todas as confeitarias
+            if (confeitarias.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: confeitarias.map((confeitaria) {
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      title: Text(confeitaria['nome']!),
-                      subtitle: Text('Avaliação: ${confeitaria['avaliacao']}'),
-                      onTap: () {
-                      },
-                    ),
-                  );
-                }).toList(),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16.0),
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(confeitaria['imagem']),
+                        ),
+                        title: Text(confeitaria['nome']),
+                        subtitle: Text('Avaliação: ${confeitaria['avaliacao']}'),
+                        onTap: () {
+                          // Ação quando clicar na confeitaria, como exibir detalhes
+                          // Você pode redirecionar para uma página de detalhes, por exemplo:
+                          Navigator.pushNamed(
+                            context,
+                            '/detalhesConfeitaria', // Rota para a página de detalhes
+                            arguments: confeitaria, // Passando os dados da confeitaria
+                          );
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
+            if (confeitarias.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text('Nenhuma confeitaria encontrada.'),
+              ),
+
+            // Botão para adicionar uma nova confeitaria (para fins de teste)
+            ElevatedButton(
+              onPressed: _addConfeitaria,
+              child: const Text('Adicionar Confeitaria'),
             ),
           ],
         ),
