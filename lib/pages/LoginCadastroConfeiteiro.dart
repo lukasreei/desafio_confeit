@@ -1,7 +1,40 @@
+import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 
-class TelaLoginConfeiteiro extends StatelessWidget {
+class TelaLoginConfeiteiro extends StatefulWidget {
   const TelaLoginConfeiteiro({super.key});
+
+  @override
+  State<TelaLoginConfeiteiro> createState() => _TelaLoginConfeiteiroState();
+}
+
+class _TelaLoginConfeiteiroState extends State<TelaLoginConfeiteiro> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+
+  Future<void> _fazerLogin() async {
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text.trim();
+
+    if (email.isEmpty || senha.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha todos os campos!')),
+      );
+      return;
+    }
+
+    // Buscar confeitaria no banco
+    final confeitaria = await DatabaseHelper.instance.getConfeitariaByEmailSenha(email, senha);
+
+    if (confeitaria != null) {
+      final confeitariaId = confeitaria['id']; // ou conforme o nome do seu campo no banco
+      Navigator.pushNamed(context, '/gerenciarConfeitaria', arguments: confeitariaId);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('E-mail ou senha inválidos!')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +54,7 @@ class TelaLoginConfeiteiro extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             TextField(
+              controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'E-mail',
                 border: OutlineInputBorder(),
@@ -28,17 +62,16 @@ class TelaLoginConfeiteiro extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             TextField(
+              controller: _senhaController,
               decoration: const InputDecoration(
                 labelText: 'Senha',
                 border: OutlineInputBorder(),
               ),
+              obscureText: true,
             ),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: () {
-                // Navegar para a tela de gerenciar confeitaria
-                Navigator.pushNamed(context, '/gerenciarConfeitaria');
-              },
+              onPressed: _fazerLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -54,7 +87,6 @@ class TelaLoginConfeiteiro extends StatelessWidget {
             const SizedBox(height: 20),
             TextButton(
               onPressed: () {
-                // Navegar para a tela de registro de confeiteiro
                 Navigator.pushNamed(context, '/registroConfeiteiro');
               },
               child: const Text(

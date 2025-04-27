@@ -41,7 +41,7 @@ class DoceMapaApp extends StatelessWidget {
               builder: (_) => CadastroProdutoPage(confeitariaId: confeitariaId),
             );
           default:
-            return null; // Se a rota não existir
+            return null;
         }
       },
     );
