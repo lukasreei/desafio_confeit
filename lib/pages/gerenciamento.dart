@@ -1,114 +1,141 @@
+import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:desafio_confeit/banco/database_helper.dart'; // Certifique-se de importar seu DatabaseHelper
 
-class CadastroProdutoPage extends StatefulWidget {
-  final int confeitariaId;  // ID da confeitaria para associar o produto
+class GerenciarConfeitariaPage extends StatefulWidget {
+  final int confeitariaId;
 
-  CadastroProdutoPage({required this.confeitariaId});
+  GerenciarConfeitariaPage({required this.confeitariaId});
 
   @override
-  _CadastroProdutoPageState createState() => _CadastroProdutoPageState();
+  _GerenciarConfeitariaPageState createState() =>
+      _GerenciarConfeitariaPageState();
 }
 
-class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
+class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
   final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nomeController;
+  late TextEditingController _emailController;
+  late TextEditingController _descricaoController;
+  late TextEditingController _senhaController;
 
-  final TextEditingController _nomeController = TextEditingController();
-  final TextEditingController _descricaoController = TextEditingController();
-  final TextEditingController _valorController = TextEditingController();
-  final TextEditingController _imagemController = TextEditingController();
+  Map<String, dynamic>? _confeitaria;
 
-  // Função para cadastrar o produto no banco de dados
-  Future<void> _cadastrarProduto() async {
+  @override
+  void initState() {
+    super.initState();
+    _nomeController = TextEditingController();
+    _emailController = TextEditingController();
+    _descricaoController = TextEditingController();
+    _senhaController = TextEditingController();
+    _getConfeitaria();
+  }
+
+  // Função para carregar as informações da confeitaria
+  Future<void> _getConfeitaria() async {
+    try {
+      var confeitaria =
+      await DatabaseHelper.instance.getConfeitaria(widget.confeitariaId);
+      if (confeitaria != null) {
+        setState(() {
+          _confeitaria = confeitaria;
+          _nomeController.text = _confeitaria!['nome'] ?? '';
+          _emailController.text = _confeitaria!['email'] ?? '';
+          _descricaoController.text = _confeitaria!['descricao'] ?? '';
+          _senhaController.text = _confeitaria!['senha'] ?? '';
+        });
+      } else {
+        // Caso não encontre a confeitaria
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Confeitaria não encontrada'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      print("Erro ao carregar confeitaria: $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erro ao carregar confeitaria: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  // Função para atualizar a confeitaria
+  Future<void> _updateConfeitaria() async {
     if (_formKey.currentState!.validate()) {
-      // Criar o mapa de dados para salvar no banco de dados
-      final newProduto = {
-        DatabaseHelper.columnNomeProduto: _nomeController.text,
-        DatabaseHelper.columnDescricaoProduto: _descricaoController.text,
-        DatabaseHelper.columnValorProduto: double.parse(_valorController.text),
-        DatabaseHelper.columnImagemProduto: _imagemController.text,  // URL ou caminho da imagem
-        DatabaseHelper.columnConfeitariaIdProduto: widget.confeitariaId,  // Associando ao ID da confeitaria
+      Map<String, dynamic> updatedData = {
+        'id': widget.confeitariaId,
+        'nome': _nomeController.text,
+        'email': _emailController.text,
+        'descricao': _descricaoController.text,
+        'senha': _senhaController.text,
       };
+      await DatabaseHelper.instance.updateConfeitaria(updatedData);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Confeitaria atualizada com sucesso!'),
+          backgroundColor: Colors.green));
 
-      // Inserir no banco de dados
-      await DatabaseHelper.instance.insertProduto(newProduto);
-
-      // Após cadastrar, você pode voltar para a página de gerenciamento ou mostrar um Snackbar de sucesso
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Produto cadastrado com sucesso!')));
-      Navigator.pop(context);  // Voltar para a página anterior
+      // Opcional: voltar para a tela anterior após a atualização
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_confeitaria == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text('Gerenciar Confeitaria')),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Cadastrar Produto'),
-        backgroundColor: Colors.pink,
-      ),
+      appBar: AppBar(title: Text('Gerenciar Confeitaria')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
-              // Campo Nome do Produto
               TextFormField(
                 controller: _nomeController,
-                decoration: InputDecoration(labelText: 'Nome do Produto'),
+                decoration: InputDecoration(labelText: 'Nome'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Informe o nome do produto';
+                    return 'Nome é obrigatório';
                   }
                   return null;
                 },
               ),
-
-              // Campo Descrição
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email é obrigatório';
+                  }
+                  return null;
+                },
+              ),
               TextFormField(
                 controller: _descricaoController,
                 decoration: InputDecoration(labelText: 'Descrição'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Informe a descrição do produto';
-                  }
-                  return null;
-                },
+                maxLines: 2,
               ),
-
-              // Campo Valor
               TextFormField(
-                controller: _valorController,
-                decoration: InputDecoration(labelText: 'Valor'),
-                keyboardType: TextInputType.number,
+                controller: _senhaController,
+                decoration: InputDecoration(labelText: 'Senha'),
+                obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Informe o valor do produto';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Valor inválido';
+                    return 'Senha é obrigatória';
                   }
                   return null;
                 },
               ),
-
-              // Campo Imagem
-              TextFormField(
-                controller: _imagemController,
-                decoration: InputDecoration(labelText: 'URL da Imagem'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Informe a URL da imagem';
-                  }
-                  return null;
-                },
-              ),
-
               SizedBox(height: 20),
-              // Botão de Cadastro
               ElevatedButton(
-                onPressed: _cadastrarProduto,
-                child: Text('Cadastrar Produto'),
+                onPressed: _updateConfeitaria,
+                child: Text('Atualizar'),
               ),
             ],
           ),

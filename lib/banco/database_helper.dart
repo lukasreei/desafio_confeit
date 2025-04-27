@@ -57,7 +57,6 @@ class DatabaseHelper {
     );
   }
 
-  // Função de consulta com email e senha
   Future<Map<String, dynamic>?> getConfeitariaByEmailSenha(String email, String senha) async {
     final db = await database;
     final result = await db.query(
@@ -94,7 +93,6 @@ class DatabaseHelper {
         $columnSenhaConfeitaria TEXT NOT NULL  -- Adicionando o campo de senha
       )
     ''');
-
     await db.execute(''' 
       CREATE TABLE $tableProduto (
         $columnIdProduto INTEGER PRIMARY KEY,
@@ -108,81 +106,67 @@ class DatabaseHelper {
     ''');
   }
 
-  // Alteração para incluir a senha no upgrade do banco de dados
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 7) {  // Atualização para versão 7 (onde a senha será adicionada)
       await db.execute('''
         ALTER TABLE $tableConfeitaria ADD COLUMN $columnSenhaConfeitaria TEXT NOT NULL
       ''');
     }
-    // Outras verificações de versão podem ser adicionadas aqui
   }
 
-  // Inserção da confeitaria com senha
   Future<int> insertConfeitaria(Map<String, dynamic> row) async {
     Database db = await database;
     return await db.insert(tableConfeitaria, row);
   }
-
-  // Inserção de produtos
   Future<int> insertProduto(Map<String, dynamic> row) async {
     Database db = await database;
     return await db.insert(tableProduto, row);
   }
 
-  // Atualização de confeitaria
   Future<int> updateConfeitaria(Map<String, dynamic> row) async {
     Database db = await database;
     int id = row[columnIdConfeitaria];
     return await db.update(tableConfeitaria, row, where: '$columnIdConfeitaria = ?', whereArgs: [id]);
   }
 
-  // Atualização de produtos
   Future<int> updateProduto(Map<String, dynamic> row) async {
     Database db = await database;
     int id = row[columnIdProduto];
     return await db.update(tableProduto, row, where: '$columnIdProduto = ?', whereArgs: [id]);
   }
 
-  // Consultar todas as confeitarias
   Future<List<Map<String, dynamic>>> getConfeitarias() async {
     Database db = await database;
     return await db.query(tableConfeitaria);
   }
 
-  // Consultar uma confeitaria por id
   Future<Map<String, dynamic>?> getConfeitaria(int id) async {
     Database db = await database;
     var result = await db.query(tableConfeitaria, where: '$columnIdConfeitaria = ?', whereArgs: [id]);
     return result.isNotEmpty ? result.first : null;
   }
 
-  // Consultar produtos de uma confeitaria
   Future<List<Map<String, dynamic>>> getProdutos(int confeitariaId) async {
     Database db = await database;
     return await db.query(tableProduto, where: '$columnConfeitariaIdProduto = ?', whereArgs: [confeitariaId]);
   }
 
-  // Consultar um produto por id
   Future<Map<String, dynamic>?> getProduto(int id) async {
     Database db = await database;
     var result = await db.query(tableProduto, where: '$columnIdProduto = ?', whereArgs: [id]);
     return result.isNotEmpty ? result.first : null;
   }
 
-  // Deletar confeitaria por id
   Future<int> deleteConfeitaria(int id) async {
     Database db = await database;
     return await db.delete(tableConfeitaria, where: '$columnIdConfeitaria = ?', whereArgs: [id]);
   }
 
-  // Deletar produto por id
   Future<int> deleteProduto(int id) async {
     Database db = await database;
     return await db.delete(tableProduto, where: '$columnIdProduto = ?', whereArgs: [id]);
   }
 
-  // Deletar todas as entradas
   Future<void> deleteAll() async {
     Database db = await database;
     await db.delete(tableConfeitaria);

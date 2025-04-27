@@ -27,8 +27,8 @@ class _TelaLoginConfeiteiroState extends State<TelaLoginConfeiteiro> {
     final confeitaria = await DatabaseHelper.instance.getConfeitariaByEmailSenha(email, senha);
 
     if (confeitaria != null) {
-      final confeitariaId = confeitaria['id']; // ou conforme o nome do seu campo no banco
-      Navigator.pushNamed(context, '/gerenciarConfeitaria', arguments: confeitariaId);
+      final confeitariaId = confeitaria['id'];
+      Navigator.pushNamed(context, '/dashboardConfeitaria', arguments: confeitariaId);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('E-mail ou senha inválidos!')),
