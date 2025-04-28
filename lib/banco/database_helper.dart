@@ -47,7 +47,8 @@ class DatabaseHelper {
     var dbPath = await getDatabasesPath();
     String path = join(dbPath, _databaseName);
 
-    await deleteDatabase(path);
+    // Remover ou comentar a linha abaixo para evitar que o banco seja apagado
+    // await deleteDatabase(path); // Não apague mais o banco de dados
 
     return await openDatabase(
       path,
@@ -92,6 +93,7 @@ class DatabaseHelper {
         $columnSenhaConfeitaria TEXT NOT NULL  -- Adicionando o campo de senha
       )
     ''');
+
     await db.execute(''' 
       CREATE TABLE $tableProduto (
         $columnIdProduto INTEGER PRIMARY KEY,
@@ -103,11 +105,12 @@ class DatabaseHelper {
         FOREIGN KEY ($columnConfeitariaIdProduto) REFERENCES $tableConfeitaria($columnIdConfeitaria)
       )
     ''');
+
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 7) {
-      await db.execute('''
+      await db.execute(''' 
         ALTER TABLE $tableConfeitaria ADD COLUMN $columnSenhaConfeitaria TEXT NOT NULL
       ''');
     }
@@ -117,6 +120,7 @@ class DatabaseHelper {
     Database db = await database;
     return await db.insert(tableConfeitaria, row);
   }
+
   Future<int> insertProduto(Map<String, dynamic> row) async {
     Database db = await database;
     return await db.insert(tableProduto, row);
