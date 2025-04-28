@@ -24,22 +24,12 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
     });
   }
 
-  Future<void> _addConfeitaria() async {
-    final newConfeitaria = {
-      'nome': 'Confeitaria Exemplo',
-      'avaliacao': 4.8,
-      'imagem': 'https://via.placeholder.com/300x200.png?text=Confeitaria+Exemplo',
-      'endereco': 'Rua Exemplo, 123, Bairro Exemplo, Cidade Exemplo',
-    };
-
-    await DatabaseHelper.instance.insertConfeitaria(newConfeitaria);
-    _loadConfeitarias(); // Recarregar as confeitarias após adicionar
-  }
-
   @override
   Widget build(BuildContext context) {
     // Confeitarias mais bem avaliadas (top 3)
-    final topConfeitarias = confeitarias.isNotEmpty ? confeitarias.sublist(0, confeitarias.length > 3 ? 3 : confeitarias.length) : [];
+    final topConfeitarias = confeitarias.isNotEmpty
+        ? confeitarias.sublist(0, confeitarias.length > 3 ? 3 : confeitarias.length)
+        : [];
 
     return Scaffold(
       appBar: AppBar(
@@ -86,6 +76,7 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                     enlargeCenterPage: true,
                     aspectRatio: 2.0,
                     viewportFraction: 0.8,
+                    height: 250, // Ajuste de altura do carrossel
                   ),
                 ),
               ),
@@ -111,11 +102,10 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                         subtitle: Text('Avaliação: ${confeitaria['avaliacao']}'),
                         onTap: () {
                           // Ação quando clicar na confeitaria, como exibir detalhes
-                          // Você pode redirecionar para uma página de detalhes, por exemplo:
                           Navigator.pushNamed(
                             context,
-                            '/detalhesConfeitaria', // Rota para a página de detalhes
-                            arguments: confeitaria, // Passando os dados da confeitaria
+                            '/detalhesConfeitaria',
+                            arguments: confeitaria,  // Passando os dados da confeitaria
                           );
                         },
                       ),
@@ -128,12 +118,6 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                 padding: EdgeInsets.all(16.0),
                 child: Text('Nenhuma confeitaria encontrada.'),
               ),
-
-            // Botão para adicionar uma nova confeitaria (para fins de teste)
-            ElevatedButton(
-              onPressed: _addConfeitaria,
-              child: const Text('Adicionar Confeitaria'),
-            ),
           ],
         ),
       ),

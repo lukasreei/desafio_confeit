@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 
 class CadastroConfeitariaPage extends StatefulWidget {
   @override
@@ -22,7 +24,21 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
   final TextEditingController _estadoController = TextEditingController();
   final TextEditingController _cidadeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _senhaController = TextEditingController(); // Novo controlador de senha
+  final TextEditingController _senhaController = TextEditingController();
+
+  File? _imagem;
+  final ImagePicker _picker = ImagePicker();
+
+  // Função para selecionar uma imagem da galeria
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imagem = File(pickedFile.path); // Armazenando o arquivo de imagem
+        _imagemController.text = pickedFile.path; // Preenche o campo com o caminho da imagem
+      });
+    }
+  }
 
   Future<void> _buscarEnderecoPorCEP(String cep) async {
     if (cep.isEmpty || cep.length != 8) return;
@@ -86,7 +102,10 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
               children: [
                 TextFormField(
                   controller: _nomeController,
-                  decoration: InputDecoration(labelText: 'Nome da Confeitaria'),
+                  decoration: InputDecoration(
+                    labelText: 'Nome da Confeitaria',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe o nome da confeitaria';
@@ -94,9 +113,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _avaliacaoController,
-                  decoration: InputDecoration(labelText: 'Avaliação (0 a 5)'),
+                  decoration: InputDecoration(
+                    labelText: 'Avaliação (0 a 5)',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -108,19 +131,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
-                TextFormField(
-                  controller: _imagemController,
-                  decoration: InputDecoration(labelText: 'URL da Imagem'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Informe a URL da imagem';
-                    }
-                    return null;
-                  },
-                ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(labelText: 'E-mail'),
+                  decoration: InputDecoration(
+                    labelText: 'E-mail',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe o e-mail da confeitaria';
@@ -131,9 +148,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _senhaController,
-                  decoration: InputDecoration(labelText: 'Senha'),
+                  decoration: InputDecoration(
+                    labelText: 'Senha',
+                    border: OutlineInputBorder(),
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -145,9 +166,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _enderecoController,
-                  decoration: InputDecoration(labelText: 'Endereço'),
+                  decoration: InputDecoration(
+                    labelText: 'Endereço',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe o endereço da confeitaria';
@@ -155,9 +180,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _cepController,
-                  decoration: InputDecoration(labelText: 'CEP'),
+                  decoration: InputDecoration(
+                    labelText: 'CEP',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   onChanged: (cep) {
                     if (cep.length == 8) {
@@ -171,9 +200,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _ruaController,
-                  decoration: InputDecoration(labelText: 'Rua'),
+                  decoration: InputDecoration(
+                    labelText: 'Rua',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe a rua';
@@ -181,9 +214,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _numeroController,
-                  decoration: InputDecoration(labelText: 'Número'),
+                  decoration: InputDecoration(
+                    labelText: 'Número',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -192,9 +229,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _bairroController,
-                  decoration: InputDecoration(labelText: 'Bairro'),
+                  decoration: InputDecoration(
+                    labelText: 'Bairro',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe o bairro';
@@ -202,9 +243,13 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _estadoController,
-                  decoration: InputDecoration(labelText: 'Estado'),
+                  decoration: InputDecoration(
+                    labelText: 'Estado',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe o estado';
@@ -212,15 +257,38 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: _cidadeController,
-                  decoration: InputDecoration(labelText: 'Cidade'),
+                  decoration: InputDecoration(
+                    labelText: 'Cidade',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Informe a cidade';
                     }
                     return null;
                   },
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: _imagemController,
+                  decoration: InputDecoration(
+                    labelText: 'URL da Imagem',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Informe a URL da imagem';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _pickImage,
+                  child: Text('Escolher Imagem'),
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(

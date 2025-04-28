@@ -31,7 +31,10 @@ class DoceMapaApp extends StatelessWidget {
           case '/confeitarias':
             return MaterialPageRoute(builder: (_) => TelaListarConfeitarias());
           case '/detalhesConfeitaria':
-            return MaterialPageRoute(builder: (_) => const TelaDetalhesConfeitaria());
+            final confeitaria = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => TelaDetalhesConfeitaria(confeitaria: confeitaria),
+            );
           case '/loginConfeiteiro':
             return MaterialPageRoute(builder: (_) => const TelaLoginConfeiteiro());
           case '/registroConfeiteiro':

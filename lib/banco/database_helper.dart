@@ -72,7 +72,6 @@ class DatabaseHelper {
     }
   }
 
-  // Criação da tabela com a coluna de senha
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(''' 
       CREATE TABLE $tableConfeitaria (

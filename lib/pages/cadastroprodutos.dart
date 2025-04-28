@@ -1,5 +1,7 @@
+import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:desafio_confeit/banco/database_helper.dart'; // Certifique-se de importar seu DatabaseHelper
+import 'package:image_picker/image_picker.dart';
+import 'dart:io'; // Certifique-se de importar seu helper de banco de dados
 
 class CadastroProdutoPage extends StatefulWidget {
   final int confeitariaId;
@@ -16,43 +18,58 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _valorController = TextEditingController();
-  final TextEditingController _imagemController = TextEditingController();
+  File? _imagem;
 
-  bool _isLoading = false; // Para indicar se está carregando
+  bool _isLoading = false;
 
-  // Função para cadastrar o produto no banco de dados
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imagem = File(pickedFile.path);
+      });
+    }
+  }
+
+  // Função para cadastrar o produto
   Future<void> _cadastrarProduto() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = true; // Ativa o loading
+        _isLoading = true;
       });
 
       try {
-        // Criar o mapa de dados para salvar no banco de dados
+        if (_imagem == null) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Selecione uma imagem!')));
+          return;
+        }
+
+        // Criar o mapa de dados para salvar no banco
         final newProduto = {
-          DatabaseHelper.columnNomeProduto: _nomeController.text,
-          DatabaseHelper.columnDescricaoProduto: _descricaoController.text,
-          DatabaseHelper.columnValorProduto: double.parse(_valorController.text),
-          DatabaseHelper.columnImagemProduto: _imagemController.text,  // URL ou caminho da imagem
-          DatabaseHelper.columnConfeitariaIdProduto: widget.confeitariaId,  // Associando ao ID da confeitaria
+          'nome': _nomeController.text,
+          'descricao': _descricaoController.text,
+          'valor': double.parse(_valorController.text),
+          'imagem': _imagem!.path, // Salvar o caminho local da imagem
+          'confeitariaId': widget.confeitariaId,
         };
 
-        // Inserir no banco de dados
+        // Salvar no banco (adapte conforme seu método de inserção)
         await DatabaseHelper.instance.insertProduto(newProduto);
 
         // Limpar campos após o cadastro
         _nomeController.clear();
         _descricaoController.clear();
         _valorController.clear();
-        _imagemController.clear();
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Produto cadastrado com sucesso!')));
-        Navigator.pop(context);  // Voltar para a página anterior
+        Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao cadastrar produto: $e')));
       } finally {
         setState(() {
-          _isLoading = false; // Desativa o loading
+          _isLoading = false;
         });
       }
     }
@@ -82,7 +99,6 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
                   return null;
                 },
               ),
-
               // Campo Descrição
               TextFormField(
                 controller: _descricaoController,
@@ -94,7 +110,6 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
                   return null;
                 },
               ),
-
               // Campo Valor
               TextFormField(
                 controller: _valorController,
@@ -110,25 +125,22 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
                   return null;
                 },
               ),
-
-              // Campo URL da Imagem
-              TextFormField(
-                controller: _imagemController,
-                decoration: InputDecoration(labelText: 'URL da Imagem'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Informe a URL da imagem';
-                  }
-                  // Pode adicionar uma validação de URL aqui, se necessário
-                  return null;
-                },
+              Row(
+                children: [
+                  _imagem == null
+                      ? Text('Nenhuma imagem selecionada')
+                      : Image.file(_imagem!, width: 100, height: 100, fit: BoxFit.cover),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: Text('Selecionar Imagem'),
+                  ),
+                ],
               ),
-
               SizedBox(height: 20),
-
               // Botão de Cadastro
               _isLoading
-                  ? CircularProgressIndicator() // Indicador de carregamento
+                  ? CircularProgressIndicator()
                   : ElevatedButton(
                 onPressed: _cadastrarProduto,
                 child: Text('Cadastrar Produto'),

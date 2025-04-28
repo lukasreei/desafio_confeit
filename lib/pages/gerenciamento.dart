@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -79,6 +80,23 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
     }
   }
 
+  // Função para excluir a confeitaria
+  Future<void> _deleteConfeitaria() async {
+    try {
+      await DatabaseHelper.instance.deleteConfeitaria(widget.confeitariaId);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Confeitaria excluída com sucesso!'),
+        backgroundColor: Colors.red,
+      ));
+      Navigator.pop(context); // Volta para a tela anterior
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erro ao excluir confeitaria: $e'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_confeitaria == null) {
@@ -88,57 +106,80 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
       );
     }
 
+    // Verifica se a imagem existe no banco de dados
+    String? imagePath = _confeitaria!['imagem'];
+
     return Scaffold(
       appBar: AppBar(title: Text('Gerenciar Confeitaria')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _nomeController,
-                decoration: InputDecoration(labelText: 'Nome'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nome é obrigatório';
-                  }
-                  return null;
-                },
+        child: ListView(
+          children: [
+            // Exibe a imagem de forma pequena no início da tela
+            imagePath != null && imagePath.isNotEmpty
+                ? Image.file(
+              File(imagePath),
+              width: 100, // Define a largura da imagem
+              height: 100, // Define a altura da imagem
+              fit: BoxFit.cover, // Ajusta a imagem para cobrir o espaço
+            )
+                : Container(
+              width: 100,
+              height: 100,
+              color: Colors.grey[200],
+              child: Icon(Icons.image, color: Colors.grey),
+            ),
+            SizedBox(height: 20),
+            TextFormField(
+              controller: _nomeController,
+              decoration: InputDecoration(labelText: 'Nome'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Nome é obrigatório';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Email é obrigatório';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _descricaoController,
+              decoration: InputDecoration(labelText: 'Descrição'),
+              maxLines: 2,
+            ),
+            TextFormField(
+              controller: _senhaController,
+              decoration: InputDecoration(labelText: 'Senha'),
+              obscureText: true,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Senha é obrigatória';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _updateConfeitaria,
+              child: Text('Atualizar'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _deleteConfeitaria,
+              child: Text('Excluir Confeitaria'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
               ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email é obrigatório';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descricaoController,
-                decoration: InputDecoration(labelText: 'Descrição'),
-                maxLines: 2,
-              ),
-              TextFormField(
-                controller: _senhaController,
-                decoration: InputDecoration(labelText: 'Senha'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Senha é obrigatória';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _updateConfeitaria,
-                child: Text('Atualizar'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
