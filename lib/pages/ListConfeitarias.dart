@@ -1,7 +1,7 @@
 import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'dart:io'; // Importa para trabalhar com File
+import 'dart:io';
 
 class TelaListarConfeitarias extends StatefulWidget {
   @override
@@ -18,7 +18,6 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
     _loadConfeitarias();
   }
 
-  // Carregar confeitarias do banco de dados
   Future<void> _loadConfeitarias() async {
     final data = await DatabaseHelper().getConfeitarias();
     setState(() {
@@ -29,7 +28,6 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
 
   @override
   Widget build(BuildContext context) {
-    // Confeitarias mais bem avaliadas (top 3)
     final topConfeitarias = confeitarias.isNotEmpty
         ? confeitarias.sublist(0, confeitarias.length > 3 ? 3 : confeitarias.length)
         : [];
@@ -44,7 +42,6 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
           : SingleChildScrollView(
         child: Column(
           children: [
-            // Carrossel com as confeitarias mais bem avaliadas
             if (topConfeitarias.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -90,13 +87,11 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                     aspectRatio: 2.0,
                     viewportFraction: 0.8,
                     height: 250,
-                    enableInfiniteScroll: false, // Para evitar looping infinito
+                    enableInfiniteScroll: false,
                   ),
                 ),
               ),
             const SizedBox(height: 20),
-
-            // Lista com todas as confeitarias
             if (confeitarias.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -107,13 +102,13 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: 4, // Adicionando sombra ao cartão
+                      elevation: 4,
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16.0),
                         leading: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: Image.file(
-                            File(confeitaria['imagem']), // Exibe a imagem localmente
+                            File(confeitaria['imagem']),
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
@@ -133,7 +128,6 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                           ),
                         ),
                         onTap: () {
-                          // Ação quando clicar na confeitaria, como exibir detalhes
                           Navigator.pushNamed(
                             context,
                             '/detalhesConfeitaria',

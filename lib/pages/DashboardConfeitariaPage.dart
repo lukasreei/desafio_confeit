@@ -114,7 +114,6 @@ class _DashboardConfeitariaPageState extends State<DashboardConfeitariaPage> {
                 },
               ),
             ),
-            // Botão para cadastrar produto
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: ElevatedButton(
@@ -133,17 +132,15 @@ class _DashboardConfeitariaPageState extends State<DashboardConfeitariaPage> {
                 },
                 child: Text('Cadastrar Produto'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink, // Cor do botão
+                  backgroundColor: Colors.pink,
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 ),
               ),
             ),
-            // Botão para ir para a tela de gerenciamento da confeitaria
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: ElevatedButton(
                 onPressed: () {
-                  // Navegar para a tela de gerenciamento da confeitaria
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -155,7 +152,7 @@ class _DashboardConfeitariaPageState extends State<DashboardConfeitariaPage> {
                 },
                 child: Text('Gerenciar Confeitaria'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Cor do botão
+                  backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 ),
               ),

@@ -1,8 +1,8 @@
 import 'package:desafio_confeit/banco/database_helper.dart';
-import 'package:flutter/material.dart'; // importa seu database helper
+import 'package:flutter/material.dart';
 import 'dart:io';
 
-import 'package:image_picker/image_picker.dart'; // Importa para trabalhar com File
+import 'package:image_picker/image_picker.dart';
 
 class EditarProdutoPage extends StatefulWidget {
   final Map<String, dynamic> produto;
@@ -19,7 +19,7 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
   late TextEditingController _descricaoController;
   late TextEditingController _valorController;
   late TextEditingController _imagemController;
-  File? _imagem; // Para armazenar a imagem localmente
+  File? _imagem;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
     _descricaoController = TextEditingController(text: widget.produto['descricao']);
     _valorController = TextEditingController(text: widget.produto['valor'].toString());
     _imagemController = TextEditingController(text: widget.produto['imagem']);
-    _imagem = File(widget.produto['imagem']); // Carrega a imagem do caminho armazenado
+    _imagem = File(widget.produto['imagem']);
   }
 
   @override
@@ -47,24 +47,23 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
         'nome': _nomeController.text,
         'descricao': _descricaoController.text,
         'valor': double.parse(_valorController.text),
-        'imagem': _imagem?.path ?? '', // Salva o caminho da imagem
+        'imagem': _imagem?.path ?? '',
         'confeitariaId': widget.produto['confeitariaId'],
       };
 
       await DatabaseHelper.instance.updateProduto(updatedProduto);
-      Navigator.pop(context, true); // volta pra tela anterior sinalizando sucesso
+      Navigator.pop(context, true);
     }
   }
 
   Future<void> _pickImage() async {
-    // Função para selecionar a imagem
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        _imagem = File(pickedFile.path); // Armazena a imagem localmente
-        _imagemController.text = _imagem!.path; // Atualiza o caminho da imagem
+        _imagem = File(pickedFile.path);
+        _imagemController.text = _imagem!.path;
       });
     }
   }
@@ -77,7 +76,6 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
         padding: EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Exibição da imagem do produto
             _imagem != null
                 ? Image.file(
               _imagem!,
@@ -87,7 +85,6 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
             )
                 : Center(child: Text('Sem imagem disponível')),
 
-            // Exibição do produto cadastrado antes da edição
             Card(
               margin: EdgeInsets.only(bottom: 16.0),
               child: ListTile(
@@ -115,7 +112,6 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
                     keyboardType: TextInputType.number,
                     validator: (value) => value == null || value.isEmpty ? 'Informe o valor' : null,
                   ),
-                  // Botão para selecionar a imagem
                   ElevatedButton(
                     onPressed: _pickImage,
                     child: Text('Selecionar Imagem'),

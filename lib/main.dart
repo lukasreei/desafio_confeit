@@ -4,7 +4,7 @@ import 'package:desafio_confeit/pages/RegistroConfeiteiro.dart';
 import 'package:desafio_confeit/pages/details.dart';
 import 'package:desafio_confeit/pages/cadastroprodutos.dart';
 import 'package:desafio_confeit/pages/login.dart';
-import 'package:desafio_confeit/pages/DashboardConfeitariaPage.dart'; // Importar a nova tela de dashboard
+import 'package:desafio_confeit/pages/DashboardConfeitariaPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -44,7 +44,7 @@ class DoceMapaApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => CadastroProdutoPage(confeitariaId: confeitariaId),
             );
-          case '/dashboardConfeitaria': // Nova rota para o dashboard
+          case '/dashboardConfeitaria':
             final confeitariaId = settings.arguments as int;
             return MaterialPageRoute(
               builder: (_) => DashboardConfeitariaPage(confeitariaId: confeitariaId),

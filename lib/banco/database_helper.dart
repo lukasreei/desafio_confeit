@@ -106,7 +106,7 @@ class DatabaseHelper {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 7) {  // Atualização para versão 7 (onde a senha será adicionada)
+    if (oldVersion < 7) {
       await db.execute('''
         ALTER TABLE $tableConfeitaria ADD COLUMN $columnSenhaConfeitaria TEXT NOT NULL
       ''');

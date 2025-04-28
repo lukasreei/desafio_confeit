@@ -31,7 +31,6 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
     _getConfeitaria();
   }
 
-  // Função para carregar as informações da confeitaria
   Future<void> _getConfeitaria() async {
     try {
       var confeitaria = await DatabaseHelper.instance.getConfeitaria(widget.confeitariaId);
@@ -44,7 +43,6 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
           _senhaController.text = _confeitaria?['senha'] ?? '';
         });
       } else {
-        // Caso não encontre a confeitaria
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Confeitaria não encontrada'),
           backgroundColor: Colors.red,
@@ -59,18 +57,15 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
     }
   }
 
-  // Função para atualizar a confeitaria
   Future<void> _updateConfeitaria() async {
     if (_formKey.currentState!.validate()) {
-      // Exibe um indicador de progresso
       showDialog(
         context: context,
-        barrierDismissible: false, // Impede que o usuário feche o diálogo
+        barrierDismissible: false,
         builder: (context) => Center(child: CircularProgressIndicator()),
       );
 
       try {
-        // Atualizando os dados da confeitaria
         Map<String, dynamic> updatedData = {
           'id': widget.confeitariaId,
           'nome': _nomeController.text,
@@ -79,25 +74,19 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
           'senha': _senhaController.text,
         };
 
-        // Atualiza no banco de dados
         await DatabaseHelper.instance.updateConfeitaria(updatedData);
 
-        // Fechar o diálogo de progresso
         Navigator.pop(context);
 
-        // Exibe uma mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Confeitaria atualizada com sucesso!'),
           backgroundColor: Colors.green,
         ));
 
-        // Opcional: volta para a tela anterior após a atualização
         Navigator.pop(context);
       } catch (e) {
-        // Fechar o diálogo de progresso em caso de erro
         Navigator.pop(context);
 
-        // Exibe uma mensagem de erro
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Erro ao atualizar confeitaria: $e'),
           backgroundColor: Colors.red,
@@ -114,7 +103,7 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
         content: Text('Confeitaria excluída com sucesso!'),
         backgroundColor: Colors.red,
       ));
-      Navigator.pop(context); // Volta para a tela anterior
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Erro ao excluir confeitaria: $e'),
@@ -125,7 +114,6 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Garantir que _confeitaria não seja null antes de acessar
     if (_confeitaria == null) {
       return Scaffold(
         appBar: AppBar(title: Text('Gerenciar Confeitaria')),
@@ -133,7 +121,6 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
       );
     }
 
-    // Verifica se a imagem existe no banco de dados
     String? imagePath = _confeitaria?['imagem'];
 
     return Scaffold(
@@ -142,13 +129,12 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
         padding: EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Exibe a imagem de forma segura
             imagePath != null && imagePath.isNotEmpty
                 ? Image.file(
               File(imagePath),
-              width: 100, // Define a largura da imagem
-              height: 100, // Define a altura da imagem
-              fit: BoxFit.cover, // Ajusta a imagem para cobrir o espaço
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
             )
                 : Container(
               width: 100,

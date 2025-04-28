@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:desafio_confeit/banco/database_helper.dart'; // seu caminho correto aqui
-import 'dart:io'; // Importa para trabalhar com File
+import 'package:desafio_confeit/banco/database_helper.dart';
+import 'dart:io';
 
 class TelaDetalhesConfeitaria extends StatefulWidget {
   final Map<String, dynamic> confeitaria;
@@ -41,11 +41,11 @@ class _TelaDetalhesConfeitariaState extends State<TelaDetalhesConfeitaria> {
           children: [
             if (widget.confeitaria['imagem'] != null && widget.confeitaria['imagem'].isNotEmpty)
               Image.file(
-                File(widget.confeitaria['imagem']), // Exibe a imagem localmente
+                File(widget.confeitaria['imagem']),
                 fit: BoxFit.cover,
               )
             else
-              Container(height: 200, color: Colors.grey), // Caso não tenha imagem
+              Container(height: 200, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               'Avaliação: ${widget.confeitaria['avaliacao']}',
@@ -83,7 +83,7 @@ class _TelaDetalhesConfeitariaState extends State<TelaDetalhesConfeitaria> {
                   child: ListTile(
                     leading: produto['imagem'] != null
                         ? Image.file(
-                      File(produto['imagem']), // Exibe a imagem localmente
+                      File(produto['imagem']),
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,

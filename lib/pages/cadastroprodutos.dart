@@ -1,7 +1,7 @@
 import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io'; // Certifique-se de importar seu helper de banco de dados
+import 'dart:io';
 
 class CadastroProdutoPage extends StatefulWidget {
   final int confeitariaId;
@@ -33,7 +33,6 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
     }
   }
 
-  // Função para cadastrar o produto
   Future<void> _cadastrarProduto() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -46,19 +45,16 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
           return;
         }
 
-        // Criar o mapa de dados para salvar no banco
         final newProduto = {
           'nome': _nomeController.text,
           'descricao': _descricaoController.text,
           'valor': double.parse(_valorController.text),
-          'imagem': _imagem!.path, // Salvar o caminho local da imagem
+          'imagem': _imagem!.path,
           'confeitariaId': widget.confeitariaId,
         };
 
-        // Salvar no banco (adapte conforme seu método de inserção)
         await DatabaseHelper.instance.insertProduto(newProduto);
 
-        // Limpar campos após o cadastro
         _nomeController.clear();
         _descricaoController.clear();
         _valorController.clear();
@@ -88,7 +84,6 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
           key: _formKey,
           child: Column(
             children: [
-              // Campo Nome do Produto
               TextFormField(
                 controller: _nomeController,
                 decoration: InputDecoration(labelText: 'Nome do Produto'),
@@ -138,7 +133,6 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
                 ],
               ),
               SizedBox(height: 20),
-              // Botão de Cadastro
               _isLoading
                   ? CircularProgressIndicator()
                   : ElevatedButton(

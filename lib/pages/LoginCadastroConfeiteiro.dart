@@ -23,7 +23,6 @@ class _TelaLoginConfeiteiroState extends State<TelaLoginConfeiteiro> {
       return;
     }
 
-    // Buscar confeitaria no banco
     final confeitaria = await DatabaseHelper.instance.getConfeitariaByEmailSenha(email, senha);
 
     if (confeitaria != null) {

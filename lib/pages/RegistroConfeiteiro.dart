@@ -29,13 +29,12 @@ class _CadastroConfeitariaPageState extends State<CadastroConfeitariaPage> {
   File? _imagem;
   final ImagePicker _picker = ImagePicker();
 
-  // Função para selecionar uma imagem da galeria
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _imagem = File(pickedFile.path); // Armazenando o arquivo de imagem
-        _imagemController.text = pickedFile.path; // Preenche o campo com o caminho da imagem
+        _imagem = File(pickedFile.path);
+        _imagemController.text = pickedFile.path;
       });
     }
   }
