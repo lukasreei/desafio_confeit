@@ -1,6 +1,7 @@
 import 'package:desafio_confeit/banco/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:io'; // Importa para trabalhar com File
 
 class TelaListarConfeitarias extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class TelaListarConfeitarias extends StatefulWidget {
 
 class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
   List<Map<String, dynamic>> confeitarias = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -21,6 +23,7 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
     final data = await DatabaseHelper().getConfeitarias();
     setState(() {
       confeitarias = data;
+      isLoading = false;
     });
   }
 
@@ -36,7 +39,9 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
         title: const Text('Confeitarias'),
         backgroundColor: Colors.pink,
       ),
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         child: Column(
           children: [
             // Carrossel com as confeitarias mais bem avaliadas
@@ -50,8 +55,16 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                       margin: const EdgeInsets.symmetric(horizontal: 8.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                         image: DecorationImage(
-                          image: NetworkImage(topConfeitarias[index]['imagem']),
+                          image: FileImage(File(topConfeitarias[index]['imagem'])),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -76,7 +89,8 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                     enlargeCenterPage: true,
                     aspectRatio: 2.0,
                     viewportFraction: 0.8,
-                    height: 250, // Ajuste de altura do carrossel
+                    height: 250,
+                    enableInfiniteScroll: false, // Para evitar looping infinito
                   ),
                 ),
               ),
@@ -93,19 +107,37 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 4, // Adicionando sombra ao cartão
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16.0),
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(confeitaria['imagem']),
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: Image.file(
+                            File(confeitaria['imagem']), // Exibe a imagem localmente
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        title: Text(confeitaria['nome']),
-                        subtitle: Text('Avaliação: ${confeitaria['avaliacao']}'),
+                        title: Text(
+                          confeitaria['nome'],
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Avaliação: ${confeitaria['avaliacao']}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                          ),
+                        ),
                         onTap: () {
                           // Ação quando clicar na confeitaria, como exibir detalhes
                           Navigator.pushNamed(
                             context,
                             '/detalhesConfeitaria',
-                            arguments: confeitaria,  // Passando os dados da confeitaria
+                            arguments: confeitaria,
                           );
                         },
                       ),
@@ -116,7 +148,10 @@ class _TelaListarConfeitariasState extends State<TelaListarConfeitarias> {
             if (confeitarias.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Text('Nenhuma confeitaria encontrada.'),
+                child: Text(
+                  'Nenhuma confeitaria encontrada.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
           ],
         ),

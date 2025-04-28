@@ -34,15 +34,14 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
   // Função para carregar as informações da confeitaria
   Future<void> _getConfeitaria() async {
     try {
-      var confeitaria =
-      await DatabaseHelper.instance.getConfeitaria(widget.confeitariaId);
+      var confeitaria = await DatabaseHelper.instance.getConfeitaria(widget.confeitariaId);
       if (confeitaria != null) {
         setState(() {
           _confeitaria = confeitaria;
-          _nomeController.text = _confeitaria!['nome'] ?? '';
-          _emailController.text = _confeitaria!['email'] ?? '';
-          _descricaoController.text = _confeitaria!['descricao'] ?? '';
-          _senhaController.text = _confeitaria!['senha'] ?? '';
+          _nomeController.text = _confeitaria?['nome'] ?? '';
+          _emailController.text = _confeitaria?['email'] ?? '';
+          _descricaoController.text = _confeitaria?['descricao'] ?? '';
+          _senhaController.text = _confeitaria?['senha'] ?? '';
         });
       } else {
         // Caso não encontre a confeitaria
@@ -63,20 +62,47 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
   // Função para atualizar a confeitaria
   Future<void> _updateConfeitaria() async {
     if (_formKey.currentState!.validate()) {
-      Map<String, dynamic> updatedData = {
-        'id': widget.confeitariaId,
-        'nome': _nomeController.text,
-        'email': _emailController.text,
-        'descricao': _descricaoController.text,
-        'senha': _senhaController.text,
-      };
-      await DatabaseHelper.instance.updateConfeitaria(updatedData);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Confeitaria atualizada com sucesso!'),
-          backgroundColor: Colors.green));
+      // Exibe um indicador de progresso
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Impede que o usuário feche o diálogo
+        builder: (context) => Center(child: CircularProgressIndicator()),
+      );
 
-      // Opcional: voltar para a tela anterior após a atualização
-      Navigator.pop(context);
+      try {
+        // Atualizando os dados da confeitaria
+        Map<String, dynamic> updatedData = {
+          'id': widget.confeitariaId,
+          'nome': _nomeController.text,
+          'email': _emailController.text,
+          'descricao': _descricaoController.text,
+          'senha': _senhaController.text,
+        };
+
+        // Atualiza no banco de dados
+        await DatabaseHelper.instance.updateConfeitaria(updatedData);
+
+        // Fechar o diálogo de progresso
+        Navigator.pop(context);
+
+        // Exibe uma mensagem de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Confeitaria atualizada com sucesso!'),
+          backgroundColor: Colors.green,
+        ));
+
+        // Opcional: volta para a tela anterior após a atualização
+        Navigator.pop(context);
+      } catch (e) {
+        // Fechar o diálogo de progresso em caso de erro
+        Navigator.pop(context);
+
+        // Exibe uma mensagem de erro
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erro ao atualizar confeitaria: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
     }
   }
 
@@ -99,6 +125,7 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Garantir que _confeitaria não seja null antes de acessar
     if (_confeitaria == null) {
       return Scaffold(
         appBar: AppBar(title: Text('Gerenciar Confeitaria')),
@@ -107,7 +134,7 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
     }
 
     // Verifica se a imagem existe no banco de dados
-    String? imagePath = _confeitaria!['imagem'];
+    String? imagePath = _confeitaria?['imagem'];
 
     return Scaffold(
       appBar: AppBar(title: Text('Gerenciar Confeitaria')),
@@ -115,7 +142,7 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
         padding: EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Exibe a imagem de forma pequena no início da tela
+            // Exibe a imagem de forma segura
             imagePath != null && imagePath.isNotEmpty
                 ? Image.file(
               File(imagePath),
