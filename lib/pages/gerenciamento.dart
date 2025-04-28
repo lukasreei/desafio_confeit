@@ -145,7 +145,7 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
             SizedBox(height: 20),
             TextFormField(
               controller: _nomeController,
-              decoration: InputDecoration(labelText: 'Nome'),
+              decoration: InputDecoration(labelText: 'Nome',border: OutlineInputBorder(),),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Nome é obrigatório';
@@ -153,9 +153,10 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
                 return null;
               },
             ),
+            SizedBox(height: 12,),
             TextFormField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'Email',border: OutlineInputBorder(),),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Email é obrigatório';
@@ -163,14 +164,16 @@ class _GerenciarConfeitariaPageState extends State<GerenciarConfeitariaPage> {
                 return null;
               },
             ),
+            SizedBox(height: 12,),
             TextFormField(
               controller: _descricaoController,
-              decoration: InputDecoration(labelText: 'Descrição'),
+              decoration: InputDecoration(labelText: 'Descrição',border: OutlineInputBorder(),),
               maxLines: 2,
             ),
+            SizedBox(height: 12,),
             TextFormField(
               controller: _senhaController,
-              decoration: InputDecoration(labelText: 'Senha'),
+              decoration: InputDecoration(labelText: 'Senha',border: OutlineInputBorder(),),
               obscureText: true,
               validator: (value) {
                 if (value == null || value.isEmpty) {

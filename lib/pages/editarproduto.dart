@@ -99,19 +99,22 @@ class _EditarProdutoPageState extends State<EditarProdutoPage> {
                 children: [
                   TextFormField(
                     controller: _nomeController,
-                    decoration: InputDecoration(labelText: 'Nome do Produto'),
+                    decoration: InputDecoration(labelText: 'Nome do Produto',border: OutlineInputBorder()),
                     validator: (value) => value == null || value.isEmpty ? 'Informe o nome' : null,
                   ),
+                  SizedBox(height: 12,),
                   TextFormField(
                     controller: _descricaoController,
-                    decoration: InputDecoration(labelText: 'Descrição'),
+                    decoration: InputDecoration(labelText: 'Descrição',border: OutlineInputBorder()),
                   ),
+                  SizedBox(height: 12,),
                   TextFormField(
                     controller: _valorController,
-                    decoration: InputDecoration(labelText: 'Valor'),
+                    decoration: InputDecoration(labelText: 'Valor',border: OutlineInputBorder()),
                     keyboardType: TextInputType.number,
                     validator: (value) => value == null || value.isEmpty ? 'Informe o valor' : null,
                   ),
+                  SizedBox(height: 12,),
                   ElevatedButton(
                     onPressed: _pickImage,
                     child: Text('Selecionar Imagem'),

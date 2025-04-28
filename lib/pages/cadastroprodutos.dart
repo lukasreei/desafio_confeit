@@ -86,7 +86,7 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
             children: [
               TextFormField(
                 controller: _nomeController,
-                decoration: InputDecoration(labelText: 'Nome do Produto'),
+                decoration: InputDecoration(labelText: 'Nome do Produto',border: OutlineInputBorder()),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Informe o nome do produto';
@@ -94,10 +94,10 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
                   return null;
                 },
               ),
-              // Campo Descrição
+              SizedBox(height: 12,),
               TextFormField(
                 controller: _descricaoController,
-                decoration: InputDecoration(labelText: 'Descrição'),
+                decoration: InputDecoration(labelText: 'Descrição',border: OutlineInputBorder()),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Informe a descrição do produto';
@@ -105,10 +105,10 @@ class _CadastroProdutoPageState extends State<CadastroProdutoPage> {
                   return null;
                 },
               ),
-              // Campo Valor
+              SizedBox(height: 12,),
               TextFormField(
                 controller: _valorController,
-                decoration: InputDecoration(labelText: 'Valor'),
+                decoration: InputDecoration(labelText: 'Valor',border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
